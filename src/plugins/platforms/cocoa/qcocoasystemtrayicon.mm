@@ -60,12 +60,14 @@ QT_BEGIN_NAMESPACE
 
 void QCocoaSystemTrayIcon::init()
 {
-    m_statusItem = [[NSStatusBar.systemStatusBar statusItemWithLength:NSSquareStatusItemLength] retain];
+    m_statusItem =
+            [[NSStatusBar.systemStatusBar statusItemWithLength:NSVariableStatusItemLength] retain];
 
     m_delegate = [[QStatusItemDelegate alloc] initWithSysTray:this];
 
     m_statusItem.button.target = m_delegate;
     m_statusItem.button.action = @selector(statusItemClicked);
+    m_statusItem.button.imagePosition = NSImageRight;
     [m_statusItem.button sendActionOn:NSEventMaskLeftMouseDown | NSEventMaskRightMouseDown | NSEventMaskOtherMouseDown];
 }
 
@@ -115,7 +117,7 @@ void QCocoaSystemTrayIcon::updateIcon(const QIcon &icon)
     // (device independent pixels). The menu height on past and
     // current OS X versions is 22 points. Provide some future-proofing
     // by deriving the icon height from the menu height.
-    const int padding = 4;
+    const int padding = 2;
     const int menuHeight = NSStatusBar.systemStatusBar.thickness;
     const int maxImageHeight = menuHeight - padding;
 
@@ -191,7 +193,7 @@ void QCocoaSystemTrayIcon::updateToolTip(const QString &toolTip)
     if (!m_statusItem)
         return;
 
-    m_statusItem.button.toolTip = toolTip.toNSString();
+    m_statusItem.button.title = toolTip.toNSString();
 }
 
 bool QCocoaSystemTrayIcon::isSystemTrayAvailable() const
@@ -246,8 +248,10 @@ void QCocoaSystemTrayIcon::statusItemClicked()
 
     emit activated(activationReason);
 
-    if (NSMenu *menu = m_menu ? m_menu->nsMenu() : nil)
-        QT_IGNORE_DEPRECATIONS([m_statusItem popUpStatusItemMenu:menu]);
+    if (activationReason == QPlatformSystemTrayIcon::Context) {
+        if (NSMenu *menu = m_menu ? m_menu->nsMenu() : nil)
+            QT_IGNORE_DEPRECATIONS([m_statusItem popUpStatusItemMenu:menu]);
+    }
 }
 
 QT_END_NAMESPACE

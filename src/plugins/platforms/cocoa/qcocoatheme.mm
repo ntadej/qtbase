@@ -85,7 +85,8 @@ static QPalette *qt_mac_createSystemPalette()
 
     palette->setBrush(QPalette::ToolTipBase, qt_mac_toQBrush([NSColor controlColor]));
 
-    palette->setColor(QPalette::Normal, QPalette::Link, qt_mac_toQColor([NSColor linkColor]));
+    palette->setColor(QPalette::Normal, QPalette::Link,
+                      qt_mac_toQColor([NSColor controlAccentColor]));
 
     qc = qt_mac_toQColor([NSColor placeholderTextColor]);
     palette->setColor(QPalette::Active, QPalette::PlaceholderText, qc);
